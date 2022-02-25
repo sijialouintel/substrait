@@ -16,4 +16,5 @@ echo $LINEITEM
 # $CMD 'select l_orderkey, count(l_partkey) from lineitem group by l_orderkey' --create "${LINEITEM}"
 
 # Yan
-$CMD 'select sum(l_orderkey+l_partkey) from lineitem where l_orderkey > 10' --create "${LINEITEM}"
+# $CMD 'select sum(l_orderkey+l_partkey) from lineitem where l_orderkey > 10' --create "${LINEITEM}"
+$CMD 'select l_suppkey, l_quantity from lineitem where l_orderkey > 10' --create "${LINEITEM}"
