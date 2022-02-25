@@ -67,7 +67,7 @@ jobs:
   #       working-directory: ./extensions
   java:
     name: Build and Test Java
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 17
@@ -83,7 +83,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [self-hosted]
     steps:
     - uses: actions/checkout@v1
     - uses: DeLaGuardo/setup-graalvm@5.0
