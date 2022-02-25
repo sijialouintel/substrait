@@ -10,7 +10,7 @@ echo $LINEITEM
 $CMD 'select * from lineitem' --create "${LINEITEM}"
 
 # With condition
-$CMD 'select * from lineitem where l_orderkey > 10' --create "${LINEITEM}"
+# $CMD 'select * from lineitem where l_orderkey > 10' --create "${LINEITEM}"
 
 # Aggregate
-$CMD 'select l_orderkey, count(l_partkey) from lineitem group by l_orderkey' --create "${LINEITEM}"
+# $CMD 'select l_orderkey, count(l_partkey) from lineitem group by l_orderkey' --create "${LINEITEM}"
