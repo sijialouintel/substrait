@@ -37,6 +37,19 @@ public class SimplePlansTest extends PlanTestBase {
     print(s.execute("select * from lineitem WHERE L_ORDERKEY > 10", creates));
   }
 
+    @Test
+    public void sql1() throws IOException, SqlParseException {
+        SqlToSubstrait s = new SqlToSubstrait();  // the default functions have been loaded into s.EXTENSION_COLLECTION
+        String[] values = asString("tpch/schema.sql").split(";");
+        var creates = Arrays.stream(values).filter(t -> !t.trim().isBlank()).toList();
+        // remove the blank part
+        // "tpch/schema.sql" is separated into several parts, where the last one is "\n"
+        // the last part should be removed
+
+        //creates.forEach(System.out::println);
+        print(s.execute("select sum(l_suppkey+l_partkey) from lineitem where l_orderkey > 10", creates));  // input: sql_command, tables_from_schema.sql
+    }
+
 
   private void print(Plan plan) {
     try {

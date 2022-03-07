@@ -210,7 +210,7 @@ abstract class FunctionConverter<F extends SimpleExtension.Function, T, C extend
 
         if (out.isPresent()) {
           var declaration = out.get();
-          var coercedArgs = coerceArguments(operands, type);
+          var coercedArgs = coerceArguments(operands, type);  // Coerced types according to an expected output type. Coercion is only done for type mismatches, not for nullability or parameter mismatches.
           declaration.validateOutputType(coercedArgs, outputType);
           return Optional.of(generateBinding(call, out.get(), coercedArgs, outputType));
         }

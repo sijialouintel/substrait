@@ -89,7 +89,7 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
 
     // todo: eliminate excessive projects. This should be done by converting rexinputrefs to remaps.
     return Project.builder()
-        .remap(Rel.Remap.offset(project.getInput().getRowType().getFieldCount(), expressions.size()))
+        .remap(Rel.Remap.offset(project.getInput().getRowType().getFieldCount(), expressions.size())) // remap to new index in table
         .expressions(expressions)
         .input(apply(project.getInput()))
         .build();
@@ -144,7 +144,7 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
 
     var groupings = sets.filter(s -> s != null)
         .map(s -> fromGroupSet(s, input))
-        .collect(Collectors.toList());
+        .collect(Collectors.toList());  // didn't go through in detail
 
     var aggCalls = aggregate.getAggCallList()
         .stream()

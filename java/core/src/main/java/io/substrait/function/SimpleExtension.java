@@ -357,6 +357,14 @@ public class SimpleExtension {
     var defaultFiles = Arrays.asList(
         "boolean", "aggregate_generic", "arithmetic_decimal", "arithmetic", "comparison", "datetime", "string"
     ).stream().map(c -> String.format("/functions_%s.yaml", c)).toList();
+    //generate yaml file path
+    //./core/build/resources/main/functions_string.yaml
+    //./core/build/resources/main/functions_arithmetic.yaml
+    //./core/build/resources/main/functions_arithmetic_decimal.yaml
+    //./core/build/resources/main/functions_aggregate_generic.yaml
+    //./core/build/resources/main/functions_boolean.yaml
+    //./core/build/resources/main/functions_comparison.yaml
+    //./core/build/resources/main/functions_datetime.yaml
 
     return load(defaultFiles);
   }
@@ -377,12 +385,12 @@ public class SimpleExtension {
     for (int i = 1; i < extensions.size(); i++) {
       complete = complete.merge(extensions.get(i));
     }
-    return complete;
+    return complete;  // merge all functions in extensions[]
   }
 
   private static ExtensionCollection load(String namespace, InputStream stream) {
     try {
-      var doc = MAPPER.readValue(stream, SimpleExtension.FunctionSignatures.class);
+      var doc = MAPPER.readValue(stream, SimpleExtension.FunctionSignatures.class);  // read 'name', 'description' and 'impls' from yaml
       var collection = ImmutableSimpleExtension.ExtensionCollection.builder()
           .addAllAggregateFunctions(doc.aggregates().stream().flatMap(t -> t.resolve(namespace)).toList())
           .addAllScalarFunctions(doc.scalars().stream().flatMap(t -> t.resolve(namespace)).toList())

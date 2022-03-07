@@ -67,11 +67,11 @@ public class SqlToSubstrait {
     if(tables != null) {
       for (String tableDef : tables) {
         DefinedTable t = parseCreateTable(factory, validator, tableDef);
-        rootSchema.add(t.getName(), t);
+        rootSchema.add(t.getName(), t);  // add tables to tableMap
       }
     }
 
-    SqlParser parser = SqlParser.create(sql, SqlParser.Config.DEFAULT);
+    SqlParser parser = SqlParser.create(sql, SqlParser.Config.DEFAULT);  // sql is stored into parser.parser.originalSql
     var parsed = parser.parseQuery();
 
     VolcanoPlanner planner = new VolcanoPlanner(RelOptCostImpl.FACTORY, Contexts.of("hello"));
@@ -83,21 +83,26 @@ public class SqlToSubstrait {
     });
 
     SqlToRelConverter converter = new SqlToRelConverter(null, validator, catalogReader, cluster, StandardConvertletTable.INSTANCE, converterConfig);
-    RelRoot root = converter.convertQuery(parsed, true, true);
+    RelRoot root = converter.convertQuery(parsed, true, true);  // converts an unvalidated query's parse tree into a relational expression
     {
       var program = HepProgram.builder()
           .addRuleInstance(AggregateExpandDistinctAggregatesRule.Config.DEFAULT.toRule())
           .build();
       HepPlanner hepPlanner = new HepPlanner(program);
       hepPlanner.setRoot(root.rel);
-      root = root.withRel(hepPlanner.findBestExp());
+      root = root.withRel(hepPlanner.findBestExp());  // generate RelRoot
     }
 
-    //System.out.println(RelOptUtil.toString(root.rel));
-    Rel pojoRel = SubstraitRelVisitor.convert(root, EXTENSION_COLLECTION);
+    System.out.println(RelOptUtil.toString(root.rel));
+    //output:
+    //LogicalAggregate(group=[{}], EXPR$0=[SUM($0)])
+    //  LogicalProject($f0=[+($0, $1)])
+    //    LogicalFilter(condition=[>($0, 10)])
+    //      LogicalTableScan(table=[[LINEITEM]])
+    Rel pojoRel = SubstraitRelVisitor.convert(root, EXTENSION_COLLECTION);  // RelRoot -> Rel
     FunctionLookup functionLookup = new FunctionLookup();
     RelConverter toProtoRel = new RelConverter(functionLookup);
-    var protoRel = pojoRel.accept(toProtoRel);
+    var protoRel = pojoRel.accept(toProtoRel);  // set function_reference_id
 
     var planRel = PlanRel.newBuilder()
         .setRoot(
@@ -107,7 +112,7 @@ public class SqlToSubstrait {
 
     var plan = Plan.newBuilder();
     plan.addRelations(planRel);
-    functionLookup.addFunctionsToPlan(plan);
+    functionLookup.addFunctionsToPlan(plan);  // add the extension info
     return plan.build();
   }
 
@@ -115,13 +120,13 @@ public class SqlToSubstrait {
   static {
     SimpleExtension.ExtensionCollection defaults = ImmutableSimpleExtension.ExtensionCollection.builder().build();
     try {
-      defaults = SimpleExtension.loadDefaults();
+      defaults = SimpleExtension.loadDefaults();  // get functions from yaml
     } catch (IOException e) {
       throw new RuntimeException("Failure while loading defaults.", e);
     }
 
-    EXTENSION_COLLECTION = defaults;
-  }
+    EXTENSION_COLLECTION = defaults;  // collection of scalarFunctions[] and aggregateFunctions[]
+  }  // load default yaml
 
   private DefinedTable parseCreateTable(RelDataTypeFactory factory, SqlValidator validator, String sql) throws SqlParseException {
       SqlParser parser = SqlParser.create(sql, SqlParser.Config.DEFAULT.withParserFactory(SqlDdlParserImpl.FACTORY));
