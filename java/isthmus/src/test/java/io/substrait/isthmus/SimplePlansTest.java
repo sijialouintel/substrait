@@ -1,5 +1,7 @@
 package io.substrait.isthmus;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import io.substrait.proto.Plan;
@@ -47,15 +49,22 @@ public class SimplePlansTest extends PlanTestBase {
         // the last part should be removed
 
         //creates.forEach(System.out::println);
+//        print(s.execute("select l_suppkey from lineitem where l_orderkey between 10 and 20", creates));
         print(s.execute("select sum(l_suppkey+l_partkey) from lineitem where l_orderkey > 10", creates));  // input: sql_command, tables_from_schema.sql
     }
 
 
   private void print(Plan plan) {
     try {
+      FileWriter myWriter = new FileWriter("test.json");
+      myWriter.write(JsonFormat.printer().includingDefaultValueFields().print(plan));
+      myWriter.close();
       System.out.println(JsonFormat.printer().includingDefaultValueFields().print(plan));
     } catch (InvalidProtocolBufferException e) {
       throw new RuntimeException(e);
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
     }
   }
 

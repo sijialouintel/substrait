@@ -36,7 +36,7 @@ public class RexExpressionConverter implements RexVisitor<Expression> {
   @Override
   public Expression visitCall(RexCall call) {
     for (var c : callConverters) {
-      var out = c.convert(call, r -> r.accept(this));  // find trhe proper convertor to apply the func
+      var out = c.convert(call, r -> r.accept(this));  // find the proper convertor to apply the func
         // Optional[ScalarFunctionInvocation{declaration=add:opt_i64_i64,
         // arguments=[FieldReference{segments=[StructField{offset=2}], type=I64{nullable=false}},
         // FieldReference{segments=[StructField{offset=1}], type=I64{nullable=false}}],

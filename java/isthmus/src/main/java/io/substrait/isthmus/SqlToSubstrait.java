@@ -93,13 +93,13 @@ public class SqlToSubstrait {
       root = root.withRel(hepPlanner.findBestExp());  // generate RelRoot
     }
 
-    System.out.println(RelOptUtil.toString(root.rel));
+    System.out.println(RelOptUtil.toString(root.rel));  //logical plan
     //output:
     //LogicalAggregate(group=[{}], EXPR$0=[SUM($0)])
     //  LogicalProject($f0=[+($0, $1)])
     //    LogicalFilter(condition=[>($0, 10)])
     //      LogicalTableScan(table=[[LINEITEM]])
-    Rel pojoRel = SubstraitRelVisitor.convert(root, EXTENSION_COLLECTION);  // RelRoot -> Rel
+    Rel pojoRel = SubstraitRelVisitor.convert(root, EXTENSION_COLLECTION);  // RelRoot -> Rel substait plan
     FunctionLookup functionLookup = new FunctionLookup();
     RelConverter toProtoRel = new RelConverter(functionLookup);
     var protoRel = pojoRel.accept(toProtoRel);  // set function_reference_id
@@ -108,11 +108,11 @@ public class SqlToSubstrait {
         .setRoot(
             io.substrait.proto.RelRoot.newBuilder()
                 .setInput(protoRel)
-                .addAllNames(TypeConverter.toNamedStruct(root.validatedRowType).names()));
+                .addAllNames(TypeConverter.toNamedStruct(root.validatedRowType).names())); // wrapper with 'root {}'
 
     var plan = Plan.newBuilder();
-    plan.addRelations(planRel);
-    functionLookup.addFunctionsToPlan(plan);  // add the extension info
+    plan.addRelations(planRel);  // wrapper with 'relations {}'
+    functionLookup.addFunctionsToPlan(plan);  // add the extension info (uris and function reference)
     return plan.build();
   }
 
